@@ -7,13 +7,16 @@ use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 #[derive(Accounts)]
 pub struct CreatePool<'info> {
     /// Address paying to create the pool. Can be anyone
+    //Eg: 95DU3vnFgNCNjADq9k4KYewMXoNviYZ76NNjZwqRhCLR
     #[account(mut)]
     pub pool_creator: Signer<'info>,
 
+    //Amm Config: E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp
     /// Which config the pool belongs to.
     pub amm_config: Box<Account<'info, AmmConfig>>,
 
     /// Initialize an account to store the pool state
+    // Eg: 8dqmW9E4x56udR2hRR4qtPa54UMpWJ7m32zjmfcj72AP
     #[account(
         init,
         seeds = [
@@ -28,6 +31,7 @@ pub struct CreatePool<'info> {
     )]
     pub pool_state: AccountLoader<'info, PoolState>,
 
+    //Eg: 91xDatdjG4C7Pkc4FmW1cKayb7HSVQEswtupr8xppump
     /// Token_0 mint, the key must be smaller then token_1 mint.
     #[account(
         constraint = token_mint_0.key() < token_mint_1.key(),
@@ -35,12 +39,14 @@ pub struct CreatePool<'info> {
     )]
     pub token_mint_0: Box<InterfaceAccount<'info, Mint>>,
 
+    //Eg: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
     /// Token_1 mint
     #[account(
         mint::token_program = token_program_1
     )]
     pub token_mint_1: Box<InterfaceAccount<'info, Mint>>,
 
+    //Eg: Fcy6GZQqhHcXRV2WSMQxKMGfmkV5aUaHnSFWkHF7dcr5
     /// Token_0 vault for the pool
     #[account(
         init,
@@ -58,6 +64,7 @@ pub struct CreatePool<'info> {
     pub token_vault_0: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// Token_1 vault for the pool
+    // Eg: 5MgB9o5jbkggp7iqj76dEySCcoyyYFuKF22iQHBa9FTi
     #[account(
         init,
         seeds =[
@@ -73,6 +80,7 @@ pub struct CreatePool<'info> {
     )]
     pub token_vault_1: Box<InterfaceAccount<'info, TokenAccount>>,
 
+    //Eg: 4R7frgunatG7EWZQTR1XUJubu9kpw1s9fKFBLwt6iDVA
     /// Initialize an account to store oracle observations
     #[account(
         init,
@@ -86,6 +94,7 @@ pub struct CreatePool<'info> {
     )]
     pub observation_state: AccountLoader<'info, ObservationState>,
 
+    //Eg: 29xtQPYayLHbNx8wmMjewGWZ42MVRXS5ZfiSCNfetNPZ
     /// Initialize an account to store if a tick array is initialized.
     #[account(
         init,
@@ -100,11 +109,18 @@ pub struct CreatePool<'info> {
     pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 
     /// Spl token program or token program 2022
+    // Eg: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
     pub token_program_0: Interface<'info, TokenInterface>,
+
+    //Eg: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
     /// Spl token program or token program 2022
     pub token_program_1: Interface<'info, TokenInterface>,
+
+    //Eg: 11111111111111111111111111111111
     /// To create a new program account
     pub system_program: Program<'info, System>,
+
+    //Eg:SysvarRent111111111111111111111111111111111
     /// Sysvar for program account
     pub rent: Sysvar<'info, Rent>,
     // remaining account
