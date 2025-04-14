@@ -46,6 +46,8 @@ pub struct OpenPosition<'info> {
 
     /// Token account where position NFT will be minted
     /// This account created in the contract by cpi to avoid large stack variables
+    //The associated_token::mint = ... ties the ATA to a specific mint (i.e., token/NFT),
+    ///the associated_token::authority ties the token authority to that specific position nft 
     #[account(
         init,
         associated_token::mint = position_nft_mint,
