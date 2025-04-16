@@ -33,6 +33,9 @@ pub struct CreatePool<'info> {
 
     //Eg: 91xDatdjG4C7Pkc4FmW1cKayb7HSVQEswtupr8xppump
     /// Token_0 mint, the key must be smaller then token_1 mint.
+    /*
+    In the Raydium CLMM contract, the check mint_a < mint_b during pool initialization is likely to ensure that the token mint addresses are in a consistent order, which can be crucial for calculations and operations within the contract. This consistent ordering helps maintain the integrity of the pool's state and avoids potential issues with how token addresses are referenced in the contract's logic. The "shorter" aspect likely refers to the fact that the mint address of token A is typically smaller than the mint address of token B in terms of lexicographical ordering.
+    */
     #[account(
         constraint = token_mint_0.key() < token_mint_1.key(),
         mint::token_program = token_program_0
@@ -65,6 +68,16 @@ pub struct CreatePool<'info> {
 
     /// Token_1 vault for the pool
     // Eg: 5MgB9o5jbkggp7iqj76dEySCcoyyYFuKF22iQHBa9FTi
+    /*
+     token::mint = token_mint_1
+     this tells anchor when you create the pda, then token mint address should be token_mint_1
+
+             token::authority = pool_state,
+
+                     token::token_program = token_program_1,
+
+
+    */
     #[account(
         init,
         seeds =[
@@ -112,16 +125,29 @@ pub struct CreatePool<'info> {
     // Eg: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
     pub token_program_0: Interface<'info, TokenInterface>,
 
+    /*
+    What is TokenInterface?
+TokenInterface is a trait/interface that lets Anchor work with either:
+
+🟢 SPL Token program (Tokenkeg...)
+
+🟠 Token2022 program (TokenzQd...)
+
+=> Interface is used to reference a program account
+So your program supports either one, and the client can pass in whichever token program it's using.
+    */
     //Eg: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
     /// Spl token program or token program 2022
     pub token_program_1: Interface<'info, TokenInterface>,
 
     //Eg: 11111111111111111111111111111111
     /// To create a new program account
+    ///We pass the system_program because it facilates the creation of a new program account
     pub system_program: Program<'info, System>,
 
     //Eg:SysvarRent111111111111111111111111111111111
     /// Sysvar for program account
+    // it is used to facilate the on-chain account creation
     pub rent: Sysvar<'info, Rent>,
     // remaining account
     // #[account(
