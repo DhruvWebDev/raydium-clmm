@@ -36,6 +36,7 @@ pub struct CreatePool<'info> {
     /*
     In the Raydium CLMM contract, the check mint_a < mint_b during pool initialization is likely to ensure that the token mint addresses are in a consistent order, which can be crucial for calculations and operations within the contract. This consistent ordering helps maintain the integrity of the pool's state and avoids potential issues with how token addresses are referenced in the contract's logic. The "shorter" aspect likely refers to the fact that the mint address of token A is typically smaller than the mint address of token B in terms of lexicographical ordering.
     */
+    //here we have an interface account because the mint can be from both token program or token-2022 program
     #[account(
         constraint = token_mint_0.key() < token_mint_1.key(),
         mint::token_program = token_program_0
