@@ -187,8 +187,10 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
         return err!(ErrorCode::NotSupportMint);
     }
     let block_timestamp = solana_program::clock::Clock::get()?.unix_timestamp as u64;
+    /// this checks that the block_timestamp should be greater than open_time
     require_gt!(block_timestamp, open_time);
     let pool_id = ctx.accounts.pool_state.key();
+    //Here we load the pool_state as THE MUT REF, it should be called once when account is being initialised
     let mut pool_state = ctx.accounts.pool_state.load_init()?;
 
     let tick = tick_math::get_tick_at_sqrt_price(sqrt_price_x64)?;
@@ -203,8 +205,13 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
         .observation_state
         .load_init()?
         .initialize(pool_id)?;
-
+    ///we can get bump for a specific pda by writing context.bumps.pda_name
     let bump = ctx.bumps.pool_state;
+    /*
+    So, calling .initialize(...) writes actual data into the account:
+    Sets values like tick_current, token_mint_0, token_vault_0, etc.
+    Saves them into the PDA’s memory so other instructions can read them later
+    */
     pool_state.initialize(
         bump,
         sqrt_price_x64,
@@ -218,12 +225,15 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
         ctx.accounts.token_mint_1.as_ref(),
         ctx.accounts.observation_state.key(),
     )?;
-
+    /*
+    Here we add the pool_id to the tick_array_bitmap
+    */
     ctx.accounts
         .tick_array_bitmap
         .load_init()?
         .initialize(pool_id);
 
+    //the emit! this allows us to write data in program logs
     emit!(PoolCreatedEvent {
         token_mint_0: ctx.accounts.token_mint_0.key(),
         token_mint_1: ctx.accounts.token_mint_1.key(),
