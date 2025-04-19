@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 use core as core_;
 use instructions::*;
 use states::*;
-
+/// it creates the security.txt file in the contract address 
 #[cfg(not(feature = "no-entrypoint"))]
 solana_security_txt::security_txt! {
     name: "raydium-clmm",
@@ -19,7 +19,10 @@ solana_security_txt::security_txt! {
     preferred_languages: "en",
     auditors: "https://github.com/raydium-io/raydium-docs/blob/master/audit/OtterSec%20Q3%202022/Raydium%20concentrated%20liquidity%20(CLMM)%20program.pdf"
 }
-
+/*
+ #[cfg(...)] → Conditional Compilation
+Rust allows you to write code that only compiles when a certain feature or condition is met using #[cfg(...)].
+*/
 #[cfg(feature = "devnet")]
 declare_id!("devi51mZmdwUJGU9hjN27vEz64Gps7uUefqxg27EAtH");
 #[cfg(not(feature = "devnet"))]
