@@ -10,6 +10,11 @@ pub struct IncreaseLiquidityV2<'info> {
     pub nft_owner: Signer<'info>,
 
     /// The token account for nft
+    /*
+    nft_account.mint == personal_position.nft_mint
+    the token amount should be 1 i.e. unique
+    checks here we set the token authority to mft_owner
+    */
     #[account(
         constraint = nft_account.mint == personal_position.nft_mint,
         constraint = nft_account.amount == 1,
@@ -34,6 +39,9 @@ pub struct IncreaseLiquidityV2<'info> {
     pub protocol_position: Box<Account<'info, ProtocolPositionState>>,
 
     /// Increase liquidity for this position
+    /*
+    personal_position pool id should match wih pool_state.key()
+    */
     #[account(mut, constraint = personal_position.pool_id == pool_state.key())]
     pub personal_position: Box<Account<'info, PersonalPositionState>>,
 
@@ -72,7 +80,9 @@ pub struct IncreaseLiquidityV2<'info> {
         constraint = token_vault_1.key() == pool_state.load()?.token_vault_1
     )]
     pub token_vault_1: Box<InterfaceAccount<'info, TokenAccount>>,
-
+/*
+here instead of initialising two token program we can use Interface<'info, T>
+*/
     /// Program to create mint account and mint tokens
     pub token_program: Program<'info, Token>,
 
@@ -80,12 +90,13 @@ pub struct IncreaseLiquidityV2<'info> {
     pub token_program_2022: Program<'info, Token2022>,
 
     /// The mint of token vault 0
+    //here we import the vault_0_mint_account with the mint
     #[account(
             address = token_vault_0.mint
     )]
     pub vault_0_mint: Box<InterfaceAccount<'info, Mint>>,
 
-    /// The mint of token vault 1
+    /// The mint of token vault 1 
     #[account(
             address = token_vault_1.mint
     )]
