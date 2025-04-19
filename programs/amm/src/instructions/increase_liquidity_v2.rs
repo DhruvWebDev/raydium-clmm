@@ -4,6 +4,22 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::Token;
 use anchor_spl::token_interface::{Mint, Token2022, TokenAccount};
 
+/*
+POOL_STRUCT INCLUDES:
+        id,
+        bump,
+        sqrt_price_x64,
+        0,
+        tick,
+        pool_creator: ctx.accounts.pool_creator.key(),
+        token_vault_0:ctx.accounts.token_vault_0.key(),
+        token_vault_1: ctx.accounts.token_vault_1.key(),
+        amm_config: ctx.accounts.amm_config.as_ref(),
+        token_mint_0: ctx.accounts.token_mint_0.as_ref(),
+        token_mint_1: ctx.accounts.token_mint_1.as_ref(),
+        observation_state: ctx.accounts.observation_state.key(),
+    )?;
+*/
 #[derive(Accounts)]
 pub struct IncreaseLiquidityV2<'info> {
     /// Pays to mint the position
@@ -46,14 +62,17 @@ pub struct IncreaseLiquidityV2<'info> {
     pub personal_position: Box<Account<'info, PersonalPositionState>>,
 
     /// Stores init state for the lower tick
+    //here we add a contraints that tick array lower pool id should match with pool_state.key()
     #[account(mut, constraint = tick_array_lower.load()?.pool_id == pool_state.key())]
     pub tick_array_lower: AccountLoader<'info, TickArrayState>,
 
     /// Stores init state for the upper tick
+    //here we add a contraints that tick array upper pool id should match with pool_state.key()
     #[account(mut, constraint = tick_array_upper.load()?.pool_id == pool_state.key())]
     pub tick_array_upper: AccountLoader<'info, TickArrayState>,
 
     /// The payer's token account for token_0
+    //here we verify that the user ata's mint should match with token vault where the tokens are to be transferred
     #[account(
         mut,
         token::mint = token_vault_0.mint
@@ -68,6 +87,7 @@ pub struct IncreaseLiquidityV2<'info> {
     pub token_account_1: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// The address that holds pool tokens for token_0
+    //the vault account key should match with pool_state's token vault
     #[account(
         mut,
         constraint = token_vault_0.key() == pool_state.load()?.token_vault_0
@@ -90,13 +110,14 @@ here instead of initialising two token program we can use Interface<'info, T>
     pub token_program_2022: Program<'info, Token2022>,
 
     /// The mint of token vault 0
-    //here we import the vault_0_mint_account with the mint
+    //here we check the address of vault mint matches with token_vault_mint
     #[account(
             address = token_vault_0.mint
     )]
     pub vault_0_mint: Box<InterfaceAccount<'info, Mint>>,
 
     /// The mint of token vault 1 
+    //  here we check the address of vault mint matches with token_vault_mint
     #[account(
             address = token_vault_1.mint
     )]
