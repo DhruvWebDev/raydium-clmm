@@ -28,6 +28,21 @@ pub struct OpenPositionWithToken22Nft<'info> {
     #[account(mut)]
     pub pool_state: AccountLoader<'info, PoolState>,
 
+    /*
+    POOL_STATE DATA:
+    Tick Lower Index
+      bytes (Base64)	
+      -20,760
+    Tick Upper Index
+      bytes (Base64)	
+      -18,753
+    Tick Array Lower Start Index
+    bytes (Base64)	
+    -20,760
+    Tick Array Upper Start Index
+     bytes (Base64)	
+     -18,780
+    */
     /// Store the information of market marking in range
     #[account(
         init_if_needed,
@@ -154,6 +169,7 @@ pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
     with_metadata: bool,
     base_flag: Option<bool>,
 ) -> Result<()> {
+    //it creates nft mint with the metadata about the pool_state, personal_position...
     create_position_nft_mint_with_extensions(
         &ctx.accounts.payer,
         &ctx.accounts.position_nft_mint,
@@ -168,11 +184,16 @@ pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
     create(CpiContext::new(
         ctx.accounts.associated_token_program.to_account_info(),
         Create {
+            //the payer is the signer
             payer: ctx.accounts.payer.to_account_info(),
             associated_token: ctx.accounts.position_nft_account.to_account_info(),
+            //the signer
             authority: ctx.accounts.position_nft_owner.to_account_info(),
+            //the nft mint(with decimal 0)
             mint: ctx.accounts.position_nft_mint.to_account_info(),
+            //system program
             system_program: ctx.accounts.system_program.to_account_info(),
+            //token program
             token_program: ctx.accounts.token_program_2022.to_account_info(),
         },
     ))?;
