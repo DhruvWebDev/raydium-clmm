@@ -12,6 +12,7 @@ pub struct InitializeReward<'info> {
     pub reward_funder: Signer<'info>,
 
     // The funder's reward token account
+    //the signer's ata 
     #[account(
         mut,
         token::mint = reward_token_mint
@@ -23,6 +24,7 @@ pub struct InitializeReward<'info> {
     pub amm_config: Box<Account<'info, AmmConfig>>,
 
     /// Set reward for this pool
+    //here we include pool_state in order to initialise the pool
     #[account(mut)]
     pub pool_state: AccountLoader<'info, PoolState>,
 
@@ -39,6 +41,8 @@ pub struct InitializeReward<'info> {
     pub reward_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     /// A pda, reward vault
+    ///the reward token vault pda with authority to tranfers token is set pool_state
+    ///thew token program should be either token program 2022 and token program
     #[account(
         init,
         seeds =[
@@ -53,7 +57,7 @@ pub struct InitializeReward<'info> {
         token::token_program = reward_token_program,
     )]
     pub reward_token_vault: Box<InterfaceAccount<'info, TokenAccount>>,
-
+    //the token interface program
     pub reward_token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
@@ -144,14 +148,17 @@ pub fn initialize_reward(
         ctx.accounts.funder_token_account.amount,
         reward_amount_with_transfer_fee
     );
-
+    //here it adds more details to the pool_state pda such open time, end time
     let mut pool_state = ctx.accounts.pool_state.load_mut()?;
     pool_state.initialize_reward(
         param.open_time,
         param.end_time,
         param.emissions_per_second_x64,
+        //the mint
         &ctx.accounts.reward_token_mint.key(),
+        //the freeze_authority
         ctx.accounts.reward_token_mint.freeze_authority,
+        //the vault ata key
         &ctx.accounts.reward_token_vault.key(),
         &ctx.accounts.reward_funder.key(),
         &operation_state,
