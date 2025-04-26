@@ -194,6 +194,7 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
     let mut pool_state = ctx.accounts.pool_state.load_init()?;
 
     let tick = tick_math::get_tick_at_sqrt_price(sqrt_price_x64)?;
+    ///cfg -> conditional compilation attribute
     #[cfg(feature = "enable-log")]
     msg!(
         "create pool, init_price: {}, init_tick:{}",
