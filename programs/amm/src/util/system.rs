@@ -60,6 +60,7 @@ pub fn get_recent_epoch() -> Result<u64> {
     Ok(Clock::get()?.epoch)
 }
 
+//this fn returns the lastest epcoh by first getting the time passed since JAN 1, 1970 and then divide by 2 days because one epcoh is of two days...
 #[cfg(any(test, feature = "client"))]
 pub fn get_recent_epoch() -> Result<u64> {
     use std::time::{SystemTime, UNIX_EPOCH};
