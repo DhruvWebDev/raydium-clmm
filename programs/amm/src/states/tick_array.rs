@@ -13,6 +13,14 @@ pub const TICK_ARRAY_SIZE_USIZE: usize = 60;
 pub const TICK_ARRAY_SIZE: i32 = 60;
 // pub const MIN_TICK_ARRAY_START_INDEX: i32 = -443636;
 // pub const MAX_TICK_ARRAY_START_INDEX: i32 = 306600;
+
+/*
+Meaning:
+
+Tick Lower/Upper Index = the exact tick your position is using.
+
+Tick Array Start Index = the starting point of the tick array bucket where ticks are stored.
+*/
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 pub struct TickArrayState {
