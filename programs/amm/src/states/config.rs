@@ -43,7 +43,15 @@ impl AmmConfig {
         Ok(())
     }
 }
+///This line says, "If the client feature is enabled, apply the derive(Debug) attribute to the struct."
+///we enable this cfg_attr in the cargo.toml file like this :
+/*
+[dependencies]
+# your dependencies
 
+[features]
+client = []  # Define the "client" feature
+*/
 /// Emitted when create or update a config
 #[event]
 #[cfg_attr(feature = "client", derive(Debug))]
