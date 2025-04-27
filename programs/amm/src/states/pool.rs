@@ -51,6 +51,13 @@ pub enum PoolStatusBitFlag {
 ///
 /// PDA of `[POOL_SEED, config, token_mint_0, token_mint_1]`
 ///
+
+///To deserialize a zero-copy account, use AccountLoader<'info, T>, where T is the zero-copy account type defined with the #[account(zero_copy)] attribute
+/*
+Memory Efficiency: You save memory by eliminating padding. This is useful in memory-constrained environments (like blockchain, embedded systems, or high-performance computing).
+Performance: By tightly packing the fields, you might reduce memory overhead and improve cache locality, which can make accessing the fields faster.
+
+*/
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 #[derive(Default, Debug)]
