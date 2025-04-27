@@ -308,9 +308,10 @@ pub fn create_position_nft_mint_with_extensions<'info>(
     let space =
         ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&extensions)?;
 
-    let lamports = Rent::get()?.minimum_balance(space);
+    //Rent::get()?.minimum_balance() returns the min lamptorts to rent exempt the account os the specific size 
+     let lamports = Rent::get()?.minimum_balance(space);
 
-    // create mint account
+    // create an empty mint account
     create_account(
         CpiContext::new(
             system_program.to_account_info(),
@@ -327,6 +328,8 @@ pub fn create_position_nft_mint_with_extensions<'info>(
     // initialize token extensions
     for e in extensions {
         match e {
+            //✅ This creates an instruction (ix) that says:
+            ///➔ "Hey Solana, this mint will have a metadata pointer!"
             ExtensionType::MetadataPointer => {
                 let ix = metadata_pointer::instruction::initialize(
                     token_2022_program.key,
@@ -334,6 +337,7 @@ pub fn create_position_nft_mint_with_extensions<'info>(
                     None,
                     Some(position_nft_mint.key()),
                 )?;
+                ///✅ This actually executes the instruction on Solana.
                 solana_program::program::invoke(
                     &ix,
                     &[
@@ -348,6 +352,7 @@ pub fn create_position_nft_mint_with_extensions<'info>(
                     position_nft_mint.key,
                     Some(mint_close_authority.key),
                 )?;
+                ///✅ This actually executes the instruction on Solana.
                 solana_program::program::invoke(
                     &ix,
                     &[
@@ -362,7 +367,7 @@ pub fn create_position_nft_mint_with_extensions<'info>(
         }
     }
 
-    // initialize mint account
+    // initialize that empty mint account
     initialize_mint2(
         CpiContext::new(
             token_2022_program.to_account_info(),
