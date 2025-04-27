@@ -30,6 +30,8 @@ pub struct IncreaseLiquidityV2<'info> {
     nft_account.mint == personal_position.nft_mint
     the token amount should be 1 i.e. unique
     checks here we set the token authority to mft_owner
+    here         token::authority = nft_owner,
+we are able to token::authority because we have passed the token programs whcih helps in this 
     */
     #[account(
         constraint = nft_account.mint == personal_position.nft_mint,
@@ -41,6 +43,7 @@ pub struct IncreaseLiquidityV2<'info> {
     #[account(mut)]
     pub pool_state: AccountLoader<'info, PoolState>,
 
+        ///        constraint = protocol_position.pool_id == pool_state.key(), here the use of passing the id to the pda used
     #[account(
         mut,
         seeds = [
@@ -108,6 +111,9 @@ here instead of initialising two token program we can use Interface<'info, T>
 
     /// Token program 2022
     pub token_program_2022: Program<'info, Token2022>,
+        /*
+        ALTERNATE: use interface program 
+        */
 
     /// The mint of token vault 0
     //here we check the address of vault mint matches with token_vault_mint
