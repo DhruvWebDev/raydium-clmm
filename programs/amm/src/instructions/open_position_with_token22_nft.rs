@@ -170,17 +170,32 @@ pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
     base_flag: Option<bool>,
 ) -> Result<()> {
     //it creates nft mint with the metadata about the pool_state, personal_position...
+    /*
+    payload of the fn looks like this: 
+    > payer: &Signer<'info>,
+    > position_nft_mint: &AccountInfo<'info>,
+    > mint_authority: &AccountInfo<'info>,
+    > mint_close_authority: &AccountInfo<'info>,
+    > system_program: &Program<'info, System>,
+    > token_2022_program: &Program<'info, Token2022>,
+    > with_matedata: bool,
+    */
+
+    //creates the mint account
     create_position_nft_mint_with_extensions(
         &ctx.accounts.payer,
         &ctx.accounts.position_nft_mint,
+        ///pool+state is the mint authority that mints the token
         &ctx.accounts.pool_state.to_account_info(),
+        //the personal_position is the mint_close_authtoriy
         &ctx.accounts.personal_position.to_account_info(),
         &ctx.accounts.system_program,
         &ctx.accounts.token_program_2022,
         with_metadata,
     )?;
 
-    // create user position nft account
+    // create user position nft ata 
+    //The create function from the anchor_spl::associated_token module is the function that actually creates the associated token account. It takes a CpiContext as an argument, which defines the context in which this instruction will be executed (i.e., the accounts involved and the program that will process it).
     create(CpiContext::new(
         ctx.accounts.associated_token_program.to_account_info(),
         Create {
