@@ -19,9 +19,7 @@ pub const POOL_SEED: &str = "pool";
 pub const POOL_VAULT_SEED: &str = "pool_vault";
 pub const POOL_REWARD_VAULT_SEED: &str = "pool_reward_vault";
 pub const POOL_TICK_ARRAY_BITMAP_SEED: &str = "pool_tick_array_bitmap_extension";
-// Number of rewards Token
-pub const REWARD_NUM: usize = 3;
-
+ 
 #[cfg(feature = "paramset")]
 pub mod reward_period_limit {
     pub const MIN_REWARD_PERIOD: u64 = 1 * 60 * 60;
@@ -164,10 +162,22 @@ impl PoolState {
         + 16
         + 8
         + RewardInfo::LEN * REWARD_NUM
-        + 8 * 16
-        + 512;
+        + 8 * 16 //    pub tick_array_bitmap: [u64; 16] this means there 16 elements each 8bytes
+        + 8 * 8 
+        + 8 * 24
+        + 8 * 32;
+    /*
+    The data type &[u8]; 5 represents an array of byte slices with 5 elements, where each element is a reference to a slice of bytes (u8).
 
+Breakdown:
+&[u8]: This is a reference to a slice of bytes, i.e., a dynamic view of a contiguous sequence of u8 values.
+
+; 5: This indicates that the array holds exactly 5 elements, each of which is a reference to a slice of u8.
+
+
+    */
     pub fn seeds(&self) -> [&[u8]; 5] {
+        //[&[u8] dereferenced 1 byte, 5 elements
         [
             &POOL_SEED.as_bytes(),
             self.amm_config.as_ref(),
@@ -176,7 +186,7 @@ impl PoolState {
             self.bump.as_ref(),
         ]
     }
-
+    /// this returns the pubkey of the pda 
     pub fn key(&self) -> Pubkey {
         Pubkey::create_program_address(&self.seeds(), &crate::id()).unwrap()
     }
@@ -198,8 +208,11 @@ impl PoolState {
         self.bump = [bump];
         self.amm_config = amm_config.key();
         self.owner = pool_creator.key();
+        //the key fn returns the pubkey of the mint
         self.token_mint_0 = token_mint_0.key();
         self.token_mint_1 = token_mint_1.key();
+        //decimal fn returns the the decimal of the token like usdc has 6 and wSol has 9
+        //the decimals are the smallest denomination of the token
         self.mint_decimals_0 = token_mint_0.decimals;
         self.mint_decimals_1 = token_mint_1.decimals;
         self.token_vault_0 = token_vault_0;
