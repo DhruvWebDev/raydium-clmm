@@ -46,12 +46,30 @@ pub struct PersonalPositionState {
     pub padding: [u64; 7],
 }
 
+/*
+IMP -> 8 bits make 1 byte 
+pub const LEN: usize =
+    8 // discriminator
+    + 1 // bump
+    + 32 // nft_mint
+    + 32 // pool_id
+    + 4 // tick_lower_index
+    + 4 // tick_upper_index
+    + 16 // liquidity
+    + 16 // fee_growth_inside_0_last_x64
+    + 16 // fee_growth_inside_1_last_x64
+    + 8 // token_fees_owed_0
+    + 8 // token_fees_owed_1
+    + (PositionRewardInfo::LEN * REWARD_NUM) // reward_infos array
+    + 64; // padding
+*/
 impl PersonalPositionState {
     pub const LEN: usize =
-        8 + 1 + 32 + 32 + 4 + 4 + 16 + 16 + 16 + 8 + 8 + PositionRewardInfo::LEN * REWARD_NUM + 64;
+        8+ 1 + 32 + 32 + 4 + 4 + 16 + 16 + 16 + 8 + 8 + PositionRewardInfo::LEN * REWARD_NUM + 64;
 
     pub fn seeds(&self) -> [&[u8]; 3] {
         [
+            //here we dereference the postion_seeds.as_bytes()
             &POSITION_SEED.as_bytes(),
             self.nft_mint.as_ref(),
             self.bump.as_ref(),
@@ -103,6 +121,8 @@ pub struct PositionRewardInfo {
 }
 
 impl PositionRewardInfo {
+    // imp - 8 bits -> 1 byte os 128 bits -> 16 bytest
+    // the next 8bytes is the anchor discriminator size 
     pub const LEN: usize = 16 + 8;
 }
 
