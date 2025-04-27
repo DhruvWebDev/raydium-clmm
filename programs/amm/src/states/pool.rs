@@ -176,6 +176,7 @@ Breakdown:
 
 
     */
+    ///this seeds fn makes it easier to get the signer seeds for the pool_state struct 
     pub fn seeds(&self) -> [&[u8]; 5] {
         //[&[u8] dereferenced 1 byte, 5 elements
         [
@@ -188,6 +189,8 @@ Breakdown:
     }
     /// this returns the pubkey of the pda 
     pub fn key(&self) -> Pubkey {
+        ///&crate::id() is a convenient fn given bt anchor for fetchin program address of the current program
+        //this Pubkey::create_program_address function returns the pubkey of the pda derived using the seeds and program id...
         Pubkey::create_program_address(&self.seeds(), &crate::id()).unwrap()
     }
 
