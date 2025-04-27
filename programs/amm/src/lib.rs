@@ -25,6 +25,7 @@ Rust allows you to write code that only compiles when a certain feature or condi
 */
 #[cfg(feature = "devnet")]
 declare_id!("devi51mZmdwUJGU9hjN27vEz64Gps7uUefqxg27EAtH");
+//this says compile this code if the devnet feature is not enabled i.e. when deploying on mainnet-beta
 #[cfg(not(feature = "devnet"))]
 declare_id!("CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK");
 
