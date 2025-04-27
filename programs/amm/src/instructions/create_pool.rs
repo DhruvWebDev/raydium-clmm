@@ -199,6 +199,7 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
     require_gt!(block_timestamp, open_time);
     let pool_id = ctx.accounts.pool_state.key();
     //Here we load the pool_state as THE MUT REF, it should be called once when account is being initialised
+    //When initializing a zero-copy account for the first time, use load_init to get a mutable reference to the account data. The load_init method also sets the account discriminator.
     let mut pool_state = ctx.accounts.pool_state.load_init()?;
 
     let tick = tick_math::get_tick_at_sqrt_price(sqrt_price_x64)?;
