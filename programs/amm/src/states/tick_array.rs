@@ -31,6 +31,7 @@ pub struct TickArrayState {
     // account update recent epoch
     pub recent_epoch: u64,
     // Unused bytes for future upgrades.
+    //their are some empty bytes reserved for future upgrades
     pub padding: [u8; 107],
 }
 
