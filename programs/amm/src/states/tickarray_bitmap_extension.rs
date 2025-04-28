@@ -43,7 +43,7 @@ impl TickArrayBitmapExtension {
         self.positive_tick_array_bitmap = [[0; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE];
         self.negative_tick_array_bitmap = [[0; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE];
     }
-
+    ///&crate::id() this returns the program id of the program
     pub fn key(pool_id: Pubkey) -> Pubkey {
         Pubkey::find_program_address(
             &[POOL_TICK_ARRAY_BITMAP_SEED.as_bytes(), pool_id.as_ref()],
@@ -69,6 +69,7 @@ impl TickArrayBitmapExtension {
     /// According to the given tick, calculate its corresponding tickarray and then find the bitmap it belongs to.
     fn get_bitmap(&self, tick_index: i32, tick_spacing: u16) -> Result<(usize, TickArryBitmap)> {
         let offset = Self::get_bitmap_offset(tick_index, tick_spacing)?;
+        ///if tick index is less than 0 i.e. -ve, return negative tick array bitmap
         if tick_index < 0 {
             Ok((offset, self.negative_tick_array_bitmap[offset]))
         } else {
