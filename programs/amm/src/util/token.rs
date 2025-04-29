@@ -128,6 +128,7 @@ pub fn transfer_from_pool_vault_to_user<'info>(
                     to: to.to_account_info(),
                     authority: pool_state_loader.to_account_info(),
                 },
+                //to use the zero_acopy account we first need to load them
                 &[&pool_state_loader.load()?.seeds()],
             ),
             amount,
@@ -367,7 +368,7 @@ pub fn create_position_nft_mint_with_extensions<'info>(
         }
     }
 
-    // initialize that empty mint account
+    // initialize that empty initialised mint account
     initialize_mint2(
         CpiContext::new(
             token_2022_program.to_account_info(),
