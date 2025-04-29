@@ -1,5 +1,13 @@
 /// Oracle provides price data useful for a wide variety of system designs
 ///
+/*
+IMPORTANT WHAT IS THE USE OF 'ANCHOR_DISCRIMINATOR_SIZE'
+RUNTIME TYPE CHECKING
+If you accidentally pass a BlogPost account to a function expecting a UserProfile, Anchor will:
+Detect the discriminator mismatch
+
+Reject it with a runtime error instead of reading the wrong data
+*/
 use anchor_lang::prelude::*;
 
 use crate::util::get_recent_epoch;
@@ -19,14 +27,14 @@ pub struct Observation {
     pub block_timestamp: u32,
     /// the cumulative of tick during the duration time
     pub tick_cumulative: i64,
-    /// padding for feature update
+    /// padding(reserved space) for feature update
     pub padding: [u64; 4],
 }
 
 impl Observation {
     pub const LEN: usize = 4 + 8 + 8 * 4;
 }
-
+//it si a
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 #[cfg_attr(feature = "client", derive(Debug))]
@@ -60,6 +68,7 @@ impl Default for ObservationState {
 }
 
 impl ObservationState {
+    it is an  account so we add the Anchor_Discriminator_size
     pub const LEN: usize = 8 + 1 + 8 + 2 + 32 + (Observation::LEN * OBSERVATION_NUM) + 8 * 4;
 
     pub fn initialize(&mut self, pool_id: Pubkey) -> Result<()> {
@@ -110,6 +119,7 @@ impl ObservationState {
 /// Returns the block timestamp truncated to 32 bits, i.e. mod 2**32
 ///
 pub fn block_timestamp() -> u32 {
+    // as u32 truncats to 32 bits
     Clock::get().unwrap().unix_timestamp as u32 // truncation is desired
 }
 
