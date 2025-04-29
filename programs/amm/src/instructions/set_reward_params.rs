@@ -19,6 +19,7 @@ pub struct SetRewardParams<'info> {
 
     #[account(
         mut,
+        //the pool_state is the type of account loader so we first need to load it.
         constraint = pool_state.load()?.amm_config == amm_config.key()
     )]
     pub pool_state: AccountLoader<'info, PoolState>,
@@ -36,6 +37,8 @@ pub struct SetRewardParams<'info> {
     pub token_program: Program<'info, Token>,
     /// Token program 2022
     pub token_program_2022: Program<'info, Token2022>,
+    //Alternate Approach
+    //INTERFACE<'T, INFO>
 }
 
 pub fn set_reward_params<'a, 'b, 'c: 'info, 'info>(
@@ -46,6 +49,7 @@ pub fn set_reward_params<'a, 'b, 'c: 'info, 'info>(
     end_time: u64,
 ) -> Result<()> {
     assert!((reward_index as usize) < REWARD_NUM);
+    //this checks the end_time should be greater than the open_time
     require_gt!(end_time, open_time);
     require_gt!(emissions_per_second_x64, 0);
     let operation_state = ctx.accounts.operation_state.load()?;
@@ -56,6 +60,7 @@ pub fn set_reward_params<'a, 'b, 'c: 'info, 'info>(
     let current_timestamp = u64::try_from(Clock::get()?.unix_timestamp).unwrap();
     require_gt!(open_time, current_timestamp);
 
+    //we load a mutable pool_state
     let mut pool_state = ctx.accounts.pool_state.load_mut()?;
 
     if !admin_operator {
@@ -104,6 +109,7 @@ pub fn set_reward_params<'a, 'b, 'c: 'info, 'info>(
         let reward_vault_mint =
             InterfaceAccount::<Mint>::try_from(&remaining_accounts.next().unwrap())?;
 
+        //the require_keys_eq! is for checking if two keys are equal
         require_keys_eq!(reward_token_vault.mint, authority_token_account.mint);
         require_keys_eq!(reward_token_vault.key(), reward_info.token_vault);
 
