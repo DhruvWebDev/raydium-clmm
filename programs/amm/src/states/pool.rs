@@ -41,6 +41,11 @@ pub enum PoolStatusBitIndex {
     Swap,
 }
 
+/*
+Without #[derive(PartialEq, Eq)], you'd get a compiler error saying:
+
+"binary operation == cannot be applied"
+*/
 #[derive(PartialEq, Eq)]
 pub enum PoolStatusBitFlag {
     Enable,
@@ -62,7 +67,7 @@ Performance: By tightly packing the fields, you might reduce memory overhead and
 #[repr(C, packed)]
 #[derive(Default, Debug)]
 pub struct PoolState {
-    /// Bump to identify PDA
+    /// Bump to uniquely identify PDA
     pub bump: [u8; 1],
     // Which config the pool belongs
     pub amm_config: Pubkey,
@@ -128,6 +133,7 @@ pub struct PoolState {
 
     /// except protocol_fee and fund_fee
     pub total_fees_token_0: u64,
+    
     /// except protocol_fee and fund_fee
     pub total_fees_claimed_token_0: u64,
     pub total_fees_token_1: u64,
@@ -198,6 +204,7 @@ Breakdown:
     pub fn key(&self) -> Pubkey {
         ///&crate::id() is a convenient fn given bt anchor for fetchin program address of the current program
         //this Pubkey::create_program_address function returns the pubkey of the pda derived using the seeds and program id...
+        //we use create_program_address over find because we are sure about the seeds and program id
         Pubkey::create_program_address(&self.seeds(), &crate::id()).unwrap()
     }
 
@@ -211,6 +218,7 @@ Breakdown:
         token_vault_0: Pubkey,
         token_vault_1: Pubkey,
         amm_config: &Account<AmmConfig>,
+        //we use InterfaceAccount type because we have two token programs
         token_mint_0: &InterfaceAccount<Mint>,
         token_mint_1: &InterfaceAccount<Mint>,
         observation_state_key: Pubkey,
@@ -227,7 +235,9 @@ Breakdown:
         self.mint_decimals_1 = token_mint_1.decimals;
         self.token_vault_0 = token_vault_0;
         self.token_vault_1 = token_vault_1;
+        //GAPS IN WHCIH THE TICKS ARE BEING PLACED 
         self.tick_spacing = amm_config.tick_spacing;
+        //initially 0 liquidity
         self.liquidity = 0;
         self.sqrt_price_x64 = sqrt_price_x64;
         self.tick_current = tick;
@@ -252,6 +262,7 @@ Breakdown:
         self.fund_fees_token_0 = 0;
         self.fund_fees_token_1 = 0;
         self.open_time = open_time;
+        //“If this function returns an Err, then return that error from the current function immediately. Otherwise, unwrap the Ok value.”
         self.recent_epoch = get_recent_epoch()?;
         self.padding1 = [0; 24];
         self.padding2 = [0; 32];
