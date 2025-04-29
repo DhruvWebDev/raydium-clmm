@@ -6,6 +6,13 @@ pub const OPERATION_SIZE_USIZE: usize = 10;
 pub const WHITE_MINT_SIZE_USIZE: usize = 100;
 
 /// Holds the current owner of the factory
+/*
+Normally, Anchor performs some safety checks to ensure correctness (like alignment and bounds).
+
+The unsafe keyword disables these checks.
+
+You are telling the compiler: "Trust me, I know the layout is correct."
+*/
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 #[derive(Debug)]
@@ -22,6 +29,7 @@ impl OperationState {
     pub const LEN: usize = 8 + 1 + 32 * OPERATION_SIZE_USIZE + 32 * WHITE_MINT_SIZE_USIZE;
     pub fn initialize(&mut self, bump: u8) {
         self.bump = bump;
+        //Pubkey::default(); -> placeholder value
         self.operation_owners = [Pubkey::default(); OPERATION_SIZE_USIZE];
         self.whitelist_mints = [Pubkey::default(); WHITE_MINT_SIZE_USIZE];
     }
@@ -37,6 +45,7 @@ impl OperationState {
     pub fn update_operation_owner(&mut self, keys: Vec<Pubkey>) {
         let mut operation_owners = self.operation_owners.to_vec();
         operation_owners.extend(keys.as_slice().iter());
+        //retain the operation_size_usize
         operation_owners.retain(|&item| item != Pubkey::default());
         let owners_set: HashSet<Pubkey> = HashSet::from_iter(operation_owners.iter().cloned());
         let mut updated_owner: Vec<Pubkey> = owners_set.into_iter().collect();
