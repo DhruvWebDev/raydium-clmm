@@ -77,6 +77,34 @@ pub fn close_position<'a, 'b, 'c, 'info>(
     let position_nft_mint = ctx.accounts.position_nft_mint.to_account_info();
     //ata that holds that specific nft
     let personal_nft_account = ctx.accounts.position_nft_account.to_account_info();
+
+    /*
+    
+pub fn burn<'a, 'b, 'c, 'info>(
+    owner: &Signer<'info>,
+    mint: &AccountInfo<'info>,
+    burn_account: &AccountInfo<'info>,
+    token_program: &AccountInfo<'info>,
+    signers_seeds: &[&[&[u8]]],
+    amount: u64,
+) -> Result<()> {
+    let mint_info = mint.to_account_info();
+    let token_program_info: AccountInfo<'_> = token_program.to_account_info();
+    token_2022::burn(
+        CpiContext::new_with_signer(
+            token_program_info,
+            token_2022::Burn {
+                mint: mint_info,
+                from: burn_account.to_account_info(),
+                authority: owner.to_account_info(),
+            },
+            signers_seeds,
+        ),
+        //here the amount means the quantity to burn 
+        amount,
+    )
+}
+    */
     burn(
         &ctx.accounts.nft_owner,
         &position_nft_mint,
@@ -88,20 +116,30 @@ pub fn close_position<'a, 'b, 'c, 'info>(
 
     // close use nft token account
     close_spl_account(
+        //owner
         &ctx.accounts.nft_owner,
+        //destination
         &ctx.accounts.nft_owner,
+        //account to be closed 
         &personal_nft_account,
+        //the token program
         &token_program,
         &[],
     )?;
 
+    //position_nft_mint.owner gives the program ID that owns the mint account.
     if *position_nft_mint.owner == spl_token_2022::id() {
         // close nft mint account
         close_spl_account(
+            //owner personal_postion pda
             &ctx.accounts.personal_position.to_account_info(),
+            //destination account(signer )
             &ctx.accounts.nft_owner,
+            //the account to be closed 
             &position_nft_mint,
+            //token program
             &token_program,
+            //signer seeds because here the owner is a pda 
             &[&ctx.accounts.personal_position.seeds()],
         )?;
     }
