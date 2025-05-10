@@ -29,6 +29,7 @@ pub struct ClosePosition<'info> {
     )]
     pub position_nft_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
+    //it contains info about our personal position
     #[account(
         mut, 
         seeds = [POSITION_SEED.as_bytes(), position_nft_mint.key().as_ref()],
@@ -70,9 +71,11 @@ pub fn close_position<'a, 'b, 'c, 'info>(
             return err!(ErrorCode::ClosePositionErr);
         }
     }
-
+//token program
     let token_program = ctx.accounts.token_program.to_account_info();
+    //nft mint
     let position_nft_mint = ctx.accounts.position_nft_mint.to_account_info();
+    //ata that holds that specific nft
     let personal_nft_account = ctx.accounts.position_nft_account.to_account_info();
     burn(
         &ctx.accounts.nft_owner,
