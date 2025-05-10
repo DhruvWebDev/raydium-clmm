@@ -4,6 +4,13 @@ use anchor_lang::prelude::*;
 #[derive(Accounts)]
 pub struct CreateOperationAccount<'info> {
     /// Address to be set as operation account owner.
+    /*
+    Normally, without @ ErrorCode::NotApproved, you'd get a generic error like:
+
+Constraint violation: address
+
+But with the @ clause, Anchor will return your specific error code.
+    */
     #[account(
         mut,
         address = crate::admin::id() @ ErrorCode::NotApproved
