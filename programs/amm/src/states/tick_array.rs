@@ -243,6 +243,7 @@ impl TickArrayState {
     }
 
     pub fn check_is_valid_start_index(tick_index: i32, tick_spacing: u16) -> bool {
+        //if it is not on the boundary we need to find the min_start_index like for 1000 it will be 960
         if TickState::check_is_out_of_boundary(tick_index) {
             if tick_index > tick_math::MAX_TICK {
                 return false;
@@ -251,9 +252,10 @@ impl TickArrayState {
                 TickArrayState::get_array_start_index(tick_math::MIN_TICK, tick_spacing);
             return tick_index == min_start_index;
         }
+        // if tick index is divisible by tick count than it is a valid start index
         tick_index % TickArrayState::tick_count(tick_spacing) == 0
     }
-
+    //60(array size) * 1 = 60
     pub fn tick_count(tick_spacing: u16) -> i32 {
         TICK_ARRAY_SIZE * i32::from(tick_spacing)
     }
