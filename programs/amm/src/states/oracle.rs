@@ -68,7 +68,7 @@ impl Default for ObservationState {
 }
 
 impl ObservationState {
-    it is an  account so we add the Anchor_Discriminator_size
+    //it is an  account so we add the Anchor_Discriminator_size
     pub const LEN: usize = 8 + 1 + 8 + 2 + 32 + (Observation::LEN * OBSERVATION_NUM) + 8 * 4;
 
     pub fn initialize(&mut self, pool_id: Pubkey) -> Result<()> {
