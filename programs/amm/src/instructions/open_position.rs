@@ -277,6 +277,11 @@ pub fn open_position<'a, 'b, 'c: 'info, 'info>(
         // Why not use anchor's `init-if-needed` to create?
         // Beacuse `tick_array_lower` and `tick_array_upper` can be the same account, anchor can initialze tick_array_lower but it causes a crash when anchor to initialze the `tick_array_upper`,
         // the problem is variable scope, tick_array_lower_loader not exit to save the discriminator while build tick_array_upper_loader.
+        /*
+        tick_array_lower_loader and tick_array_upper_loader represent the lower and upper bounds of the liquidity range for a position.
+        The tick_spacing parameter defines the granularity of tick arrays.
+        Smaller tick spacing allows more precise liquidity placement but increases the number of tick arrays.
+        */
         let tick_array_lower_loader = TickArrayState::get_or_create_tick_array(
             payer.to_account_info(),
             tick_array_lower_loader.to_account_info(),
