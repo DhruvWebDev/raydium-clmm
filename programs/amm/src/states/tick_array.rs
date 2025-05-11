@@ -263,6 +263,22 @@ impl TickArrayState {
 
 impl Default for TickArrayState {
     #[inline]
+    //here we use inline macro because:
+    /*
+    To give a trivial example, during compilation the compiler can transform this code:
+
+fn f(w: u32) -> u32 {
+    inline_me(w, 2)
+}
+fn inline_me(x: u32, y: u32) -> u32 {
+    x * y
+}
+Into this code:
+
+fn f(w: u32) -> u32 {
+    w * 2
+}
+    */
     fn default() -> TickArrayState {
         TickArrayState {
             pool_id: Pubkey::default(),
