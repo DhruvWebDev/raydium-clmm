@@ -302,6 +302,21 @@ pub fn open_position<'a, 'b, 'c: 'info, 'info>(
 
         // check if protocol position is initialized
         let protocol_position = protocol_position.deref_mut();
+        /*
+        When a ProtocolPositionState (or similar struct) is created or allocated:
+        If the pool_id field is not explicitly set, it will be initialized to its default value.
+        The default value for a Pubkey is Pubkey::default().
+        */
+        /*
+        pub fn get_tick_state_mut(
+        &mut self,
+        tick_index: i32,
+        tick_spacing: u16,
+    ) -> Result<&mut TickState> {
+        let offset_in_array = self.get_tick_offset_in_array(tick_index, tick_spacing)?;
+        Ok(&mut self.ticks[offset_in_array])
+    }
+        */
         if protocol_position.pool_id == Pubkey::default() {
             protocol_position.bump = protocol_position_bump;
             protocol_position.pool_id = pool_state_loader.key();
