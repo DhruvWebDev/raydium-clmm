@@ -115,8 +115,10 @@ pub fn get_next_sqrt_price_from_input(
 
     // round to make sure that we don't pass the target price
     if zero_for_one {
+        //if we are swapping the token_0 for token_1
         get_next_sqrt_price_from_amount_0_rounding_up(sqrt_price_x64, liquidity, amount_in, true)
     } else {
+        //if we are swapping the token_1 for token_0
         get_next_sqrt_price_from_amount_1_rounding_down(sqrt_price_x64, liquidity, amount_in, true)
     }
 }
