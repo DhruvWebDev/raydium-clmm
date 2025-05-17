@@ -34,12 +34,12 @@ pub struct Observation {
 impl Observation {
     pub const LEN: usize = 4 + 8 + 8 * 4;
 }
-//it si a
+//It can hold upto observation's upto 100 elements and after that it will start to overwrite from the 0th index.
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 #[cfg_attr(feature = "client", derive(Debug))]
 pub struct ObservationState {
-    /// Whether the ObservationState is initialized
+    /// Whether the ObservationState is initialized 
     pub initialized: bool,
     /// recent update epoch
     pub recent_epoch: u64,
@@ -87,7 +87,16 @@ impl ObservationState {
     ///
     /// * `self` - The ObservationState account to write in
     /// * `block_timestamp` - The current timestamp of to update
+    /// * `tick` - the tick for which we are writing observation
     ///
+    /*
+     timestamp: timestamp,
+            tickCumulative: last.tickCumulative +
+                int56(tick) *
+                int56(delta),
+            initialized: true
+        });
+    */
     pub fn update(&mut self, block_timestamp: u32, tick: i32) {
         let observation_index = self.observation_index;
         if !self.initialized {
@@ -96,18 +105,24 @@ impl ObservationState {
             self.observations[observation_index as usize].tick_cumulative = 0;
         } else {
             let last_observation = self.observations[observation_index as usize];
+            //the gap between the present an last_observation's timestamp.
             let delta_time = block_timestamp.saturating_sub(last_observation.block_timestamp);
             if delta_time < OBSERVATION_UPDATE_DURATION_DEFAULT {
                 return;
             }
-
             let delta_tick_cumulative = i64::from(tick).checked_mul(delta_time.into()).unwrap();
+            //here we derive the next observation index...
+            //if the current obs index is equal to 14(0..14) i.e. 15 elements, then we would overide the oldest obs, else return the next index
             let next_observation_index = if observation_index as usize == OBSERVATION_NUM - 1 {
                 0
             } else {
                 observation_index + 1
             };
+            
             self.observations[next_observation_index as usize].block_timestamp = block_timestamp;
+            /*
+            What we’re calculating here is the accumulated price: the current tick gets multiplied by the number of seconds since the last observation and gets added to the last accumulated price.
+            */
             self.observations[next_observation_index as usize].tick_cumulative = last_observation
                 .tick_cumulative
                 .wrapping_add(delta_tick_cumulative);
