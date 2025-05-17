@@ -156,6 +156,7 @@ pub fn swap_internal<'b, 'info>(
 
     let updated_reward_infos = pool_state.update_reward_infos(block_timestamp as u64)?;
 
+    //this is the swap const...
     let mut state = SwapState {
         amount_specified_remaining: amount_specified,
         amount_calculated: 0,
@@ -171,7 +172,7 @@ pub fn swap_internal<'b, 'info>(
         fund_fee: 0,
         liquidity: liquidity_start,
     };
-
+    // we add pool_id in the oservation struct so that we can ensure by a check that correct observation_state is being passed to the function...
     // check observation account is owned by the pool
     require_keys_eq!(observation_state.pool_id, pool_state.key());
 
@@ -189,9 +190,9 @@ pub fn swap_internal<'b, 'info>(
             .pop_front()
             .ok_or(ErrorCode::NotEnoughTickArrayAccount)?;
     }
-    // check the first tick_array account is owned by the pool
+    /// check the first tick_array account is owned by the pool
     require_keys_eq!(tick_array_current.pool_id, pool_state.key());
-    // check first tick array account is correct
+    /// check first tick array account is correct
     require_eq!(
         tick_array_current.start_tick_index,
         current_vaild_tick_array_start_index,
