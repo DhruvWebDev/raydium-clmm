@@ -98,6 +98,7 @@ pub trait Downcast256 {
     fn as_u128(self) -> U128;
 }
 impl Downcast256 for U256 {
+    //U256([u64;4])
     fn as_u128(self) -> U128 {
         U128([self.0[0], self.0[1]])
     }
@@ -108,6 +109,7 @@ pub trait Upcast512 {
 }
 impl Upcast512 for U256 {
     fn as_u512(self) -> U512 {
+        //copies the array from 0,1,2,3
         U512([self.0[0], self.0[1], self.0[2], self.0[3], 0, 0, 0, 0])
     }
 }
@@ -118,7 +120,12 @@ pub trait Downcast512 {
     fn as_u256(self) -> U256;
 }
 impl Downcast512 for U512 {
+    /*
+    U512([u64; 8])  // full 512 bits
+    U256([u64; 4])  // only first 256 bits
+*/
     fn as_u256(self) -> U256 {
+        //so we copy the first array's -> first four elements i.e. sub arrays
         U256([self.0[0], self.0[1], self.0[2], self.0[3]])
     }
 }
@@ -174,6 +181,7 @@ impl MulDiv for U128 {
         }
     }
 
+    //it safely converts U128 TO u64
     fn to_underflow_u64(self) -> u64 {
         if self < U128::from(u64::MAX) {
             self.as_u64()
