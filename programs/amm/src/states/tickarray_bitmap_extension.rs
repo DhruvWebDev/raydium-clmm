@@ -13,6 +13,7 @@ use std::ops::BitXor;
 
 const EXTENSION_TICKARRAY_BITMAP_SIZE: usize = 14;
 
+/// max no. of tick in one tickarray bitmap: Total ticks = tick_spacing × 60 × 512 = tick_spacing × 30,720
 #[account(zero_copy(unsafe))]
 #[repr(C, packed)]
 #[derive(Debug)]
@@ -23,6 +24,20 @@ pub struct TickArrayBitmapExtension {
     /// Packed initialized tick array state for start_tick_index is negitive
     pub negative_tick_array_bitmap: [[u64; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE],
 }
+/*
+
+EXTENSION_TICKARRAY_BITMAP_SIZE rows
+↓
+[
+  [u64, u64, u64, u64, u64, u64, u64, u64], // 512 bits(each element 64 and 8 elements)
+  [u64, u64, u64, u64, u64, u64, u64, u64], // 512 bits
+  ...
+]
+↑
+each bit represents 0 1 as per activeness
+Each row = 512 bits = tracks 512 tick arrays
+
+*/
 
 impl Default for TickArrayBitmapExtension {
     #[inline]
@@ -46,7 +61,9 @@ impl TickArrayBitmapExtension {
     ///&crate::id() this returns the program id of the program
     pub fn key(pool_id: Pubkey) -> Pubkey {
         Pubkey::find_program_address(
+            //seeds
             &[POOL_TICK_ARRAY_BITMAP_SEED.as_bytes(), pool_id.as_ref()],
+            // program public key
             &crate::id(),
         )
         .0
@@ -54,35 +71,57 @@ impl TickArrayBitmapExtension {
 
     fn get_bitmap_offset(tick_index: i32, tick_spacing: u16) -> Result<usize> {
         require!(
+            //This checks if it is a valid start index.
             TickArrayState::check_is_valid_start_index(tick_index, tick_spacing),
             ErrorCode::InvaildTickIndex
         );
         Self::check_extension_boundary(tick_index, tick_spacing)?;
+        //tick spacing * 30720
         let ticks_in_one_bitmap = max_tick_in_tickarray_bitmap(tick_spacing);
+        //we convert the tick_index to its absolute value i.e. -ve to +ve \
+        //so i set the offset to mut 
         let mut offset = tick_index.abs() / ticks_in_one_bitmap - 1;
+        /*
+offset = tick_index.abs() / ticks_in_one_bitmap - 1
+          Now:
+          tick_index = 1 → offset = 0
+          tick_index = 30720 → offset = 0 ✅
+          tick_index = 30721 → offset = 1
+        */        
         if tick_index < 0 && tick_index.abs() % ticks_in_one_bitmap == 0 {
+    // I  am mutating the offset here 
             offset -= 1;
         }
         Ok(offset as usize)
     }
 
     /// According to the given tick, calculate its corresponding tickarray and then find the bitmap it belongs to.
+    //this function ACCORDING TO THE TICK, returns the tick_bitmap_array
     fn get_bitmap(&self, tick_index: i32, tick_spacing: u16) -> Result<(usize, TickArryBitmap)> {
+        //the tickArrayBitmap looks like this  pub type TickArryBitmap = [u64; 8];
         let offset = Self::get_bitmap_offset(tick_index, tick_spacing)?;
         ///if tick index is less than 0 i.e. -ve, return negative tick array bitmap
         if tick_index < 0 {
+            // -ve
             Ok((offset, self.negative_tick_array_bitmap[offset]))
         } else {
+            // +ve
             Ok((offset, self.positive_tick_array_bitmap[offset]))
         }
     }
 
     /// Check if the tick in tick array bitmap extension
+    ///To check if a given tick_index is outside the current bitmap bounds (i.e., it lies in the region where tick arrays can be extended).
     pub fn check_extension_boundary(tick_index: i32, tick_spacing: u16) -> Result<()> {
+        //thsi returns the max no. of ticks(that cona be initialised ie.e. tick spacing )
+        ///i32::from(tick_spacing) * TICK_ARRAY_SIZE(60) * TICK_ARRAY_BITMAP_SIZE
         let positive_tick_boundary = max_tick_in_tickarray_bitmap(tick_spacing);
         let negative_tick_boundary = -positive_tick_boundary;
+        //MAX_TICK -> i32 = 443636
+        //MIN_TICK -> i32 = -443636
         require_gt!(tick_math::MAX_TICK, positive_tick_boundary);
         require_gt!(negative_tick_boundary, tick_math::MIN_TICK);
+        //return error if it within the boundary of the current tick_array_bitmap
         if tick_index >= negative_tick_boundary && tick_index < positive_tick_boundary {
             return err!(ErrorCode::InvalidTickArrayBoundary);
         }
