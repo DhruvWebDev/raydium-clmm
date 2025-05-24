@@ -255,7 +255,9 @@ offset = tick_index.abs() / ticks_in_one_bitmap - 1
     }
 
     pub fn tick_array_offset_in_bitmap(tick_array_start_index: i32, tick_spacing: u16) -> i32 {
+        //m is the bitmap offset 
         let m = tick_array_start_index.abs() % max_tick_in_tickarray_bitmap(tick_spacing);
+        //
         let mut tick_array_offset_in_bitmap = m / TickArrayState::tick_count(tick_spacing);
         if tick_array_start_index < 0 && m != 0 {
             tick_array_offset_in_bitmap = TICK_ARRAY_BITMAP_SIZE - tick_array_offset_in_bitmap;
