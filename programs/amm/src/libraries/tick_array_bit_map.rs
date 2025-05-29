@@ -13,6 +13,14 @@ pub fn max_tick_in_tickarray_bitmap(tick_spacing: u16) -> i32 {
 }
 
 pub fn get_bitmap_tick_boundary(tick_array_start_index: i32, tick_spacing: u16) -> (i32, i32) {
+    /*
+   ticks_in_one_bitmap = 30720
+   m = 40000 / 30720 = 1
+   40000 % 30720 = 9280 != 0 → m += 1 → m = 2
+   min_value = 2 * 30720 = 61440
+   Return: (-61440, -61440 + 30720) = (-61440, -30720)
+   ✔ So the -40000 tick index lies in the bitmap block (-61440, -30720)
+    */
     let ticks_in_one_bitmap: i32 = max_tick_in_tickarray_bitmap(tick_spacing);
     let mut m = tick_array_start_index.abs() / ticks_in_one_bitmap;
     if tick_array_start_index < 0 && tick_array_start_index.abs() % ticks_in_one_bitmap != 0 {
